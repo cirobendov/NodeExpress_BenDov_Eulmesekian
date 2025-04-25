@@ -15,12 +15,29 @@ app.use(express.json()); // Middleware para parsear y comprender JSON
 // Aca pongo todos los EndPoints
 //
 app.get('/', (req, res) => {                // EndPoint "/"
-    res.send('Ya estoy respondiendo!');
+    res.status(200).send('Ya estoy respondiendo!');
 })
 
-app.get('/saludar', (req, res) => {             // EndPoint "/saludar"
-    res.send('Hello World!');
+app.get('/saludar/:nombre', (req, res) => {             // EndPoint "/saludar"
+    res.send('Hola ' + req.params.nombre);
 })
+
+app.get('/validarfecha/:ano/:mes/:dia', (req, res) => {
+
+    const ano = parseInt(req.params.ano)
+    const mes = parseInt(req.params.mes - 1)
+    const dia = parseInt(req.params.dia)
+
+    let fecha = new Date(ano, mes, dia)
+    if (fecha.getFullYear() === ano && fecha.getMonth() === mes && fecha.getDate() === dia) {
+        res.status(200).send('La fecha es válida')
+    }else{
+        res.status(400).send('Esta como el orto la fecha')
+    }
+ 
+
+})
+
 //
 // Inicio el Server y lo pongo a escuchar.
 //
