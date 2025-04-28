@@ -31,7 +31,7 @@ app.get('/validarfecha/:ano/:mes/:dia', (req, res) => {
     if (fecha.getFullYear() === ano && fecha.getMonth() === mes && fecha.getDate() === dia) {
         res.status(200).send('La fecha es válida')
     }else{
-        res.status(400).send('Esta como el orto la fecha')
+        res.status(400).send('La fecha no es válida')
     }
 })
 
@@ -42,9 +42,71 @@ app.get('/validarfecha/:ano/:mes/:dia', (req, res) => {
 app.get('/matematica/sumar', (req, res) =>{
     const n1 = parseFloat(req.query.n1)
     const n2 = parseFloat(req.query.n2)
-    res.status(200).send(n1 + n2)
+    res.status(200).send(sumar(n1, n2).toString())
 })
+app.get('/matematica/restar', (req, res) => {
+    const n1 = parseFloat(req.query.n1);
+    const n2 = parseFloat(req.query.n2);
+    res.status(200).send(restar(n1, n2).toString());
+});
+app.get('/matematica/multiplicar', (req, res) => {
+    const n1 = parseFloat(req.query.n1);
+    const n2 = parseFloat(req.query.n2);
+    res.status(200).send(multiplicar(n1, n2).toString());
+});
+app.get('/matematica/dividir', (req, res) => {
+    const n1 = parseFloat(req.query.n1);
+    const n2 = parseFloat(req.query.n2);
+    if (n2 === 0) {
+        res.status(400).send("El divisor no puede ser cero");
+    } else {
+        res.status(200).send(dividir(n1, n2).toString());
+    }
+});
 
+app.get('/omdb/searchbypage', async (req, res) => {
+    const search = req.query.search || '';
+    const page = parseInt(req.query.p || '1');
+    const resultado = await OMDBSearchByPage(search, page);
+    res.status(200).json(resultado);
+});
+
+app.get('/omdb/searchcomplete', async (req, res) => {
+    const search = req.query.search || '';
+    const resultado = await OMDBSearchComplete(search);
+    res.status(200).json(resultado);
+});
+
+app.get('/omdb/getbyomdbid', async (req, res) => {
+    const imdbID = req.query.imdbID || '';
+    const resultado = await OMDBGetByImdbID(imdbID);
+    res.status(200).json(resultado);
+});
+
+const alumnosArray = [];
+alumnosArray.push(new Alumno("Esteban Dido"  , "22888444", 20));
+alumnosArray.push(new Alumno("Matias Queroso", "28946255", 51));
+alumnosArray.push(new Alumno("Elba Calao"    , "32623391", 18));
+app.get('/alumnos', (req, res) => {
+    res.status(200).json(alumnosArray);
+});
+app.get('/alumnos/:dni', (req, res) => {
+    const alumno = alumnosArray.find(a => a.dni === req.params.dni);
+    if (!alumno) return res.status(404).send("Alumno no encontrado");
+    res.status(200).json(alumno);
+});
+app.post('/alumnos', (req, res) => {
+    const { username, dni, edad } = req.body;
+    alumnosArray.push(new Alumno(username, dni, edad));
+    res.status(201).send("Alumno agregado");
+});
+app.delete('/alumnos', (req, res) => {
+    const dni = req.body.dni;
+    const index = alumnosArray.findIndex(a => a.dni === dni);
+    if (index === -1) return res.status(404).send("Alumno no encontrado");
+    alumnosArray.splice(index, 1);
+    res.status(200).send("Alumno eliminado");
+});
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
